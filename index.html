@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Text Encoder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a1a 100%);
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            width: 100%;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d1a2d 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(233, 30, 99, 0.15);
+        }
+
+        .logo {
+            color: #e91e63;
+            font-weight: 700;
+            font-size: 22px;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            list-style: none;
+        }
+
+        .nav-links li a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 15px;
+            padding: 10px 18px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-links li a:hover {
+            background: rgba(233, 30, 99, 0.2);
+            color: #e91e63;
+        }
+
+        .hamburger {
+            display: none;
+            font-size: 26px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .container {
+            width: 100%;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d1a2d 100%);
+            margin: 0;
+            padding: 30px 15px;
+            min-height: calc(100vh - 70px);
+        }
+
+        h2 {
+            margin-bottom: 25px;
+            font-size: 32px;
+            color: #e91e63;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        h3 {
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 20px;
+            color: #bbb;
+            font-weight: 600;
+        }
+
+        textarea, input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1.5px solid rgba(233, 30, 99, 0.2);
+            padding: 20px;
+            margin-top: 10px;
+            color: #fff;
+            border-radius: 12px;
+            font-size: 18px;
+            font-family: inherit;
+        }
+
+        textarea {
+            min-height: 180px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: #e91e63;
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        button {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #e91e63 0%, #d81b60 100%);
+            border: none;
+            border-radius: 12px;
+            margin-top: 15px;
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #ff2a7b 0%, #e91e63 100%);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, #ff2a7b 0%, #e91e63 100%);
+        }
+
+        .copy-btn:hover {
+            background: linear-gradient(135deg, #ff2a7b 0%, #c0134d 100%);
+        }
+
+        .copy-success {
+            background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%) !important;
+        }
+
+        /* Mobile Optimization */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 16px 15px;
+            }
+
+            .logo {
+                font-size: 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hamburger {
+                display: block;
+                color: #fff;
+            }
+
+            .container {
+                padding: 25px 12px;
+                min-height: calc(100vh - 60px);
+            }
+
+            h2 {
+                font-size: 28px;
+                margin-bottom: 20px;
+            }
+
+            h3 {
+                font-size: 18px;
+                margin-top: 20px;
+                margin-bottom: 12px;
+            }
+
+            textarea, input {
+                padding: 18px;
+                font-size: 16px;
+            }
+
+            textarea {
+                min-height: 160px;
+            }
+
+            button {
+                padding: 18px;
+                font-size: 18px;
+                margin-top: 15px;
+            }
+        }
+
+        /* Small phones */
+        @media (max-width: 400px) {
+            .navbar {
+                padding: 14px 12px;
+            }
+
+            .logo {
+                font-size: 18px;
+            }
+
+            .container {
+                padding: 20px 10px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            textarea {
+                min-height: 140px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">Swasti-Encryptor</div>
+    <ul class="nav-links" id="navMenu">
+        <li><a href="index.html">Encoder</a></li>
+        <li><a href="decode.html">Decoder</a></li>
+    </ul>
+    <div class="hamburger" onclick="toggleMenu()">☰</div>
+</nav>
+
+<div class="container">
+    <h2>Encoder</h2>
+
+    <textarea id="message" placeholder="Enter your message"></textarea>
+    <input type="text" id="key" placeholder="Enter secret key (case sensitive)">
+
+    <button onclick="encodeText()">Encode</button>
+
+    <h3>Encoded Output</h3>
+    <textarea id="output" readonly></textarea>
+
+    <button id="copyBtn" class="copy-btn" onclick="copyEncodedText()">Copy Encoded Text</button>
+    <button onclick="downloadFile()">Download TXT</button>
+</div>
+
+<script>
+    // Function to encode text
+    function encodeText() {
+        const message = document.getElementById('message').value;
+        const key = document.getElementById('key').value;
+        
+        // Simple encoding example - replace with your actual encoding logic
+        let encoded = '';
+        for (let i = 0; i < message.length; i++) {
+            const charCode = message.charCodeAt(i) ^ key.charCodeAt(i % key.length);
+            encoded += String.fromCharCode(charCode);
+        }
+        
+        // Convert to base64 for display
+        const base64Encoded = btoa(encoded);
+        document.getElementById('output').value = base64Encoded;
+    }
+
+    // Function to copy encoded text to clipboard
+    function copyEncodedText() {
+        const outputText = document.getElementById('output').value;
+        const copyBtn = document.getElementById('copyBtn');
+        
+        if (!outputText) {
+            alert('No encoded text to copy!');
+            return;
+        }
+        
+        // Use the Clipboard API to copy text
+        navigator.clipboard.writeText(outputText)
+            .then(() => {
+                // Visual feedback for successful copy
+                copyBtn.textContent = 'Copied!';
+                copyBtn.classList.add('copy-success');
+                
+                // Reset button after 2 seconds
+                setTimeout(() => {
+                    copyBtn.textContent = 'Copy Encoded Text';
+                    copyBtn.classList.remove('copy-success');
+                }, 2000);
+            })
+            .catch(err => {
+                console.error('Failed to copy text: ', err);
+                alert('Failed to copy text. Please try again.');
+            });
+    }
+
+    // Function to download the encoded text as a file
+    function downloadFile() {
+        const outputText = document.getElementById('output').value;
+        
+        if (!outputText) {
+            alert('No encoded text to download!');
+            return;
+        }
+        
+        const blob = new Blob([outputText], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'encoded_message.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // Function to toggle mobile menu
+    function toggleMenu() {
+        const navMenu = document.getElementById('navMenu');
+        navMenu.style.display = navMenu.style.display === 'flex' ? 'none' : 'flex';
+    }
+</script>
+</body>
+</html>
