@@ -1,12 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Text Encoder</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
@@ -64,6 +70,18 @@
             user-select: none;
         }
 
+        .nav-active {
+            display: flex !important;
+            flex-direction: column;
+            position: absolute;
+            top: 60px;
+            right: 15px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d1a2d 100%);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(233, 30, 99, 0.3);
+        }
+
         .container {
             width: 100%;
             background: linear-gradient(135deg, #1a1a1a 0%, #2d1a2d 100%);
@@ -118,33 +136,20 @@
             background: linear-gradient(135deg, #e91e63 0%, #d81b60 100%);
             border: none;
             border-radius: 12px;
-            margin-top: 15px;
+            margin-top: 25px;
             color: white;
             font-size: 20px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: transform 0.2s;
         }
 
         button:hover {
-            background: linear-gradient(135deg, #ff2a7b 0%, #e91e63 100%);
             transform: translateY(-2px);
         }
 
         button:active {
             transform: translateY(0);
-        }
-
-        .copy-btn {
-            background: linear-gradient(135deg, #ff2a7b 0%, #e91e63 100%);
-        }
-
-        .copy-btn:hover {
-            background: linear-gradient(135deg, #ff2a7b 0%, #c0134d 100%);
-        }
-
-        .copy-success {
-            background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%) !important;
         }
 
         /* Mobile Optimization */
@@ -194,7 +199,7 @@
             button {
                 padding: 18px;
                 font-size: 18px;
-                margin-top: 15px;
+                margin-top: 20px;
             }
         }
 
@@ -227,100 +232,143 @@
 <nav class="navbar">
     <div class="logo">Swasti-Encryptor</div>
     <ul class="nav-links" id="navMenu">
-        <li><a href="index.html">Encoder</a></li>
-        <li><a href="https://swasti-mistry.github.io/Swasti-Text-Decrypter/">Decoder</a></li>
+        <li><a href="#encode">Encoder</a></li>
+        <li><a href="#decode">Decoder</a></li>
     </ul>
     <div class="hamburger" onclick="toggleMenu()">☰</div>
 </nav>
 
-<div class="container">
-    <h2>Encoder</h2>
+<section id="encode">
+    <div class="container">
+        <h2>Encoder</h2>
 
-    <textarea id="message" placeholder="Enter your message"></textarea>
-    <input type="text" id="key" placeholder="Enter secret key (case sensitive)">
+        <textarea id="encodeMessage" placeholder="Enter your message"></textarea>
+        <input type="text" id="encodeKey" placeholder="Enter secret key (case sensitive)">
 
-    <button onclick="encodeText()">Encode</button>
+        <button onclick="encodeText()">Encode</button>
 
-    <h3>Encoded Output</h3>
-    <textarea id="output" readonly></textarea>
+        <h3>Encoded Output</h3>
+        <textarea id="encodeOutput" readonly></textarea>
 
-    <button id="copyBtn" class="copy-btn" onclick="copyEncodedText()">Copy Encoded Text</button>
-    <button onclick="downloadFile()">Download TXT</button>
-</div>
+        <button onclick="downloadEncoded()">Download TXT</button>
+    </div>
+</section>
+
+<section id="decode">
+    <div class="container">
+        <h2>Decoder</h2>
+
+        <textarea id="decodeMessage" placeholder="Paste encoded text"></textarea>
+        <input type="text" id="decodeKey" placeholder="Enter secret key">
+
+        <button onclick="decodeText()">Decode</button>
+
+        <h3>Decoded Output</h3>
+        <textarea id="decodeOutput" readonly></textarea>
+
+        <button onclick="downloadDecoded()">Download TXT</button>
+    </div>
+</section>
 
 <script>
-    // Function to encode text
-    function encodeText() {
-        const message = document.getElementById('message').value;
-        const key = document.getElementById('key').value;
-        
-        // Simple encoding example - replace with your actual encoding logic
-        let encoded = '';
-        for (let i = 0; i < message.length; i++) {
-            const charCode = message.charCodeAt(i) ^ key.charCodeAt(i % key.length);
-            encoded += String.fromCharCode(charCode);
-        }
-        
-        // Convert to base64 for display
-        const base64Encoded = btoa(encoded);
-        document.getElementById('output').value = base64Encoded;
+// Utility function for SHA-256 hashing
+async function sha256(input) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(input);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// ENCODER FUNCTIONS
+async function encodeText() {
+    let message = document.getElementById("encodeMessage").value;
+    let key = document.getElementById("encodeKey").value;
+
+    if (!message || !key) {
+        alert("Enter message and key!");
+        return;
     }
 
-    // Function to copy encoded text to clipboard
-    function copyEncodedText() {
-        const outputText = document.getElementById('output').value;
-        const copyBtn = document.getElementById('copyBtn');
-        
-        if (!outputText) {
-            alert('No encoded text to copy!');
-            return;
-        }
-        
-        // Use the Clipboard API to copy text
-        navigator.clipboard.writeText(outputText)
-            .then(() => {
-                // Visual feedback for successful copy
-                copyBtn.textContent = 'Copied!';
-                copyBtn.classList.add('copy-success');
-                
-                // Reset button after 2 seconds
-                setTimeout(() => {
-                    copyBtn.textContent = 'Copy Encoded Text';
-                    copyBtn.classList.remove('copy-success');
-                }, 2000);
-            })
-            .catch(err => {
-                console.error('Failed to copy text: ', err);
-                alert('Failed to copy text. Please try again.');
-            });
+    let encoded = "";
+    for (let i = 0; i < message.length; i++) {
+        let m = message.charCodeAt(i);
+        let k = key.charCodeAt(i % key.length);
+        encoded += String.fromCharCode(m + k);
     }
 
-    // Function to download the encoded text as a file
-    function downloadFile() {
-        const outputText = document.getElementById('output').value;
-        
-        if (!outputText) {
-            alert('No encoded text to download!');
-            return;
-        }
-        
-        const blob = new Blob([outputText], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'encoded_message.txt';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+    const hash = await sha256(key);
+    document.getElementById("encodeOutput").value = encoded + "::" + hash;
+}
+
+function downloadEncoded() {
+    let text = document.getElementById("encodeOutput").value;
+    if (!text) {
+        alert("Encode first!");
+        return;
     }
 
-    // Function to toggle mobile menu
-    function toggleMenu() {
-        const navMenu = document.getElementById('navMenu');
-        navMenu.style.display = navMenu.style.display === 'flex' ? 'none' : 'flex';
+    let blob = new Blob([text], { type: "text/plain" });
+    let link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "encoded.txt";
+    link.click();
+}
+
+// DECODER FUNCTIONS
+async function decodeText() {
+    let encodedInput = document.getElementById("decodeMessage").value;
+    let key = document.getElementById("decodeKey").value;
+
+    if (!encodedInput || !key) {
+        alert("Enter encoded text + key");
+        return;
     }
+
+    let parts = encodedInput.split("::");
+    if (parts.length !== 2) {
+        alert("❌ Invalid encoded text format!");
+        return;
+    }
+
+    let encodedText = parts[0];
+    let storedHash = parts[1];
+
+    const newHash = await sha256(key);
+
+    if (newHash !== storedHash) {
+        alert("❌ Incorrect Key! Decoding failed.");
+        return;
+    }
+
+    let decoded = "";
+    for (let i = 0; i < encodedText.length; i++) {
+        let e = encodedText.charCodeAt(i);
+        let k = key.charCodeAt(i % key.length);
+        decoded += String.fromCharCode(e - k);
+    }
+
+    document.getElementById("decodeOutput").value = decoded;
+}
+
+function downloadDecoded() {
+    let text = document.getElementById("decodeOutput").value;
+    if (!text) {
+        alert("Decode something first!");
+        return;
+    }
+    let blob = new Blob([text], { type: "text/plain" });
+    let link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "decoded.txt";
+    link.click();
+}
+
+// NAVIGATION
+function toggleMenu() {
+    document.getElementById("navMenu").classList.toggle("nav-active");
+}
 </script>
-</body>
 
+</body>
 </html>
